@@ -21,9 +21,14 @@
 ;; it won't convert the resulting links.
 ;;
 
+(use-package f
+  :ensure t
+  :after org-roam
+)
+
 ;; Your logseq directory should be inside your org-roam directory,
 ;; put the directory you use here
-(defvar bill/logseq-folder (f-expand (f-join org-roam-directory "zettel")))
+(defvar bill/logseq-folder (f-expand (f-join org-roam-directory "")))
 
 ;; You probably don't need to change these values
 (defvar bill/logseq-pages (f-expand (f-join bill/logseq-folder "pages")))
@@ -196,3 +201,5 @@
     (when bad
       (message "Bad items: %s" bad))
     nil))
+
+(provide 'org-roam-logseq)
