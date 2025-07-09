@@ -81,7 +81,25 @@ ls -la ~/org-roam-logseq-nodes-MichaelRWolf/logseq/
 # Point to: ~/org-roam-logseq-nodes-MichaelRWolf
 ```
 
-#### 2.4 Remove Obsidian Migration Directory (Optional)
+#### 2.4 Set Up External Editor Integration
+```bash
+# Copy the emacs integration script to a standard location
+sudo cp logseq-emacs-edit.sh /usr/local/bin/
+sudo chmod +x /usr/local/bin/logseq-emacs-edit.sh
+
+# Set environment variables for the script (optional)
+# You can set these in your shell profile or export them manually:
+export EDITOR=emacsclient
+export VISUAL=emacsclient
+```
+
+**Configure Logseq External Editor:**
+1. Open Logseq app
+2. Go to Settings → Advanced → External Editor
+3. Set **Editor Path**: `/usr/local/bin/logseq-emacs-edit.sh`
+4. Set **Arguments**: `{file}` (or `%f` depending on Logseq version)
+
+#### 2.5 Remove Obsidian Migration Directory (Optional)
 ```bash
 # Option A: Remove the entire migration directory if no longer needed
 rm -rf migrate-org-to-obsidian/
