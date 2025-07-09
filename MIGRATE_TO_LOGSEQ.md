@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the migration from a complex org-mode/org-roam/obsidian setup to a simplified Logseq-based system that works seamlessly with Emacs and mobile devices.
+This document outlines the migration from a complex org-mode/org-roam/obsidian setup to a simplified Logseq-based system that works seamlessly with Emacs and mobile devices. **This plan is focused solely on the org-roam-logseq project and does not consider any other independent projects or submodules.**
 
 ## Current State Analysis
 
@@ -13,16 +13,11 @@ This document outlines the migration from a complex org-mode/org-roam/obsidian s
 - **Permission issues**: iCloud directories with restricted access
 - **Git version control**: Multiple repos and submodules creating confusion
 
-**Note**: The Portable_Profile submodule and its `michael` symlink to home directory are ignored in this migration plan as they are part of a separate system.
-
 ### Current Directory Structure
 ```
 org-roam-logseq/
 ├── logseq/                           # Unused config
 ├── migrate-org-to-obsidian/
-│   ├── portable-profile/
-│   │   ├── michael -> /Users/michael  # Problematic symlink
-│   │   └── ...
 │   ├── bin/org_roam_to_obsidian.sh   # Obsidian migration script
 │   └── ...
 └── ...
@@ -41,8 +36,11 @@ rm -rf migrate-org-to-obsidian/elisp/org_roam_to_obsidian.el
 
 #### 1.2 Remove Obsidian Vault Directory
 ```bash
-# Remove the entire Obsidian vault directory
-rm -rf migrate-org-to-obsidian/portable-profile/michael/obsidian-vault/
+# Remove the entire Obsidian vault directory (if it exists)
+# Note: This path may not exist if the portable-profile submodule was already removed
+if [ -d "migrate-org-to-obsidian/portable-profile/michael/obsidian-vault/" ]; then
+  rm -rf migrate-org-to-obsidian/portable-profile/michael/obsidian-vault/
+fi
 ```
 
 #### 1.3 Clean Up Empty Directories
