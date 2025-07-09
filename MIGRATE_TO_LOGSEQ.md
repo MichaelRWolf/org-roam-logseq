@@ -4,14 +4,17 @@
 
 This document outlines the migration from a complex org-mode/org-roam/obsidian setup to a simplified Logseq-based system that works seamlessly with Emacs and mobile devices. **This plan is focused solely on the org-roam-logseq project and does not consider any other independent projects or submodules.**
 
+**Note: org-roam is being abandoned due to reliability issues. This migration focuses on using the existing org-roam data directly with Logseq, without any org-roam dependencies.**
+
 ## Current State Analysis
 
 ### Problem Areas
-- **Multiple conflicting directories**: org-roam, obsidian-vault, iCloud sync locations
+- **Multiple conflicting directories**: org-roam data, obsidian-vault, iCloud sync locations
 - **Complex symlink chains**: `~/org-roam-logseq-nodes-MichaelRWolf` → iCloud location
 - **Obsidian references**: Migration scripts and configurations no longer needed
 - **Permission issues**: iCloud directories with restricted access
 - **Git version control**: Multiple repos and submodules creating confusion
+- **org-roam reliability**: Abandoning org-roam due to persistent issues
 
 ### Current Directory Structure
 ```
@@ -49,35 +52,33 @@ fi
 rm -rf logseq/
 ```
 
-### Phase 2: Simplify Directory Structure
+### Phase 2: Use Existing Data In Place
 
-#### 2.1 Create Clean Logseq Workspace
+#### 2.1 Identify Current Working Directory
 ```bash
-# Create new local Logseq directory structure
-mkdir -p ~/logseq-workspace/{pages,journals,logseq,assets}
-
-# Copy working Logseq config
-cp migrate-org-to-obsidian/portable-profile/michael/obsidian-vault/logseq/config.edn ~/logseq-workspace/logseq/
+# Determine where your current working Logseq data is located
+# This should be the directory that contains your actual notes and journals
+ls -la ~/org-roam-logseq-nodes-MichaelRWolf
 ```
 
-#### 2.2 Migrate Data
+#### 2.2 Use Existing Data Directory for Logseq
+The existing org-roam data directory will be used directly by Logseq:
 ```bash
-# Move your working files from obsidian-vault (if still exists)
-# Note: If obsidian-vault was already removed, skip this step
-if [ -d "migrate-org-to-obsidian/portable-profile/michael/obsidian-vault/" ]; then
-  cp -r migrate-org-to-obsidian/portable-profile/michael/obsidian-vault/pages/* ~/logseq-workspace/pages/
-  cp -r migrate-org-to-obsidian/portable-profile/michael/obsidian-vault/journals/* ~/logseq-workspace/journals/
-fi
+# The existing directory contains all your notes and can be used by Logseq
+# No need to copy or move anything - use it in place
+ls -la ~/org-roam-logseq-nodes-MichaelRWolf/pages/
+ls -la ~/org-roam-logseq-nodes-MichaelRWolf/journals/
 ```
 
-#### 2.3 Update Emacs Configuration
-Update `emacs_mrw_org_stuff.el`:
-```elisp
-(use-package org-roam
-  :custom
-  (org-roam-directory "~/logseq-workspace")
-  ;; ... rest of configuration
-)
+#### 2.3 Verify Logseq Configuration
+Ensure Logseq is configured to use the existing data directory:
+```bash
+# Check if Logseq config exists in your working directory
+ls -la ~/org-roam-logseq-nodes-MichaelRWolf/logseq/
+
+# Configure Logseq to use this directory as its workspace
+# In Logseq app: Settings → Advanced → Workspace → Add workspace
+# Point to: ~/org-roam-logseq-nodes-MichaelRWolf
 ```
 
 #### 2.4 Remove Obsidian Migration Directory (Optional)
@@ -90,52 +91,45 @@ rm -rf migrate-org-to-obsidian/bin/org_roam_to_obsidian.sh*
 rm -rf migrate-org-to-obsidian/elisp/org_roam_to_obsidian.el
 ```
 
-### Phase 3: Cloud Sync Setup
+### Phase 3: Verify Cloud Sync Setup
 
-#### 3.1 Option A: iCloud Sync (Recommended for Mobile)
+#### 3.1 Check Current iCloud Sync Status
 ```bash
-# Create symlink to iCloud Logseq location
-ln -sf "/Users/michael/Library/Mobile Documents/iCloud~com~logseq~logseq/Documents/org-roam-logseq" ~/logseq-workspace
-
-# Update Emacs to use the symlinked location
-# org-roam-directory will automatically point to iCloud location
+# Verify that your existing directory is properly synced with iCloud
+ls -la ~/org-roam-logseq-nodes-MichaelRWolf
+# This should show a symlink to the iCloud location if sync is working
 ```
 
-#### 3.2 Option B: Dropbox/Google Drive Sync
-```bash
-# Move workspace to cloud sync directory
-mv ~/logseq-workspace ~/Dropbox/logseq-workspace
-# or
-mv ~/logseq-workspace ~/Google\ Drive/logseq-workspace
-
-# Update Emacs configuration accordingly
-```
+#### 3.2 Ensure Mobile App Access
+- Open Logseq mobile app
+- Verify it can access your notes
+- Test creating a new note to ensure sync works in both directions
 
 ### Phase 4: Git Version Control
 
-#### 4.1 Initialize Git Repository
+#### 4.1 Initialize Git Repository in Existing Directory
 ```bash
-cd ~/logseq-workspace
+cd ~/org-roam-logseq-nodes-MichaelRWolf
 git init
 echo "*.log" >> .gitignore
 echo ".DS_Store" >> .gitignore
 echo "logseq/bak/" >> .gitignore
 echo "logseq/.recycle/" >> .gitignore
 git add .
-git commit -m "Initial Logseq workspace setup"
+git commit -m "Initial Logseq workspace setup using existing org-roam data"
 ```
 
 #### 4.2 Backup Strategy
 ```bash
 # Create backup script
-cat > ~/logseq-workspace/backup.sh << 'EOF'
+cat > ~/org-roam-logseq-nodes-MichaelRWolf/backup.sh << 'EOF'
 #!/bin/bash
-cd ~/logseq-workspace
+cd ~/org-roam-logseq-nodes-MichaelRWolf
 git add .
 git commit -m "Auto-backup $(date)"
 git push origin main
 EOF
-chmod +x ~/logseq-workspace/backup.sh
+chmod +x ~/org-roam-logseq-nodes-MichaelRWolf/backup.sh
 ```
 
 ## Recommended Practices
@@ -161,51 +155,37 @@ chmod +x ~/logseq-workspace/backup.sh
         ("M-S-<left>" . org-table-delete-column)))
 ```
 
-#### 2. Org-Roam Configuration
+#### 2. Org-Mode Configuration (No org-roam)
 ```elisp
-(use-package org-roam
+;; Basic org-mode configuration without org-roam dependencies
+(use-package org
   :ensure t
   :custom
-  (org-roam-directory "~/logseq-workspace")
-  (org-roam-capture-templates
-   '(("d" "default" plain
-      "%?"
-      :target (file+head "pages/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
-      :unnarrowed t)
-     ("p" "person" plain
-      "* ${title}  :Person:\n \n* Contact\n \n* Organizations\n-\n* People\n-\n* Notes\n%?\n \n%T Created\n \n"
-      :target (file+head "pages/%<%Y%m%d%H%M%S>-person_${slug}.org" "#+title: ${title}\n")
-      :unarrowed t)))
+  (org-directory "~/org-roam-logseq-nodes-MichaelRWolf")
+  (org-agenda-files (list "~/org-roam-logseq-nodes-MichaelRWolf/pages"
+                          "~/org-roam-logseq-nodes-MichaelRWolf/journals"))
   :bind
-  (("C-c n f" . org-roam-node-find)
-   ("C-c n i" . org-roam-node-insert)
-   ("C-c n l" . org-roam-buffer-toggle))
-  :config
-  (org-roam-db-autosync-mode))
+  (("C-c a" . org-agenda)
+   ("C-c c" . org-capture)))
 ```
 
-#### 3. Logseq Integration
+#### 3. Logseq Integration (Direct)
 ```elisp
-(use-package org-roam-logseq
-  :disabled t  ; Disable if not using org-roam-logseq package
-  :after org-roam
-  :config
-  (setq bill/logseq-folder (f-expand (f-join org-roam-directory "")))
-  (setq bill/logseq-pages (f-expand (f-join bill/logseq-folder "pages")))
-  (setq bill/logseq-journals (f-expand (f-join bill/logseq-folder "journals"))))
+;; Direct integration with Logseq workspace
+(setq logseq-workspace "~/org-roam-logseq-nodes-MichaelRWolf")
 ```
 
 ### File Organization Best Practices
 
 #### 1. Directory Structure
 ```
-~/logseq-workspace/
-├── pages/           # Main notes and pages
+~/org-roam-logseq-nodes-MichaelRWolf/
+├── pages/           # Main notes and pages (existing org-roam data)
 │   ├── People/      # Person notes
 │   ├── Projects/    # Project notes
 │   ├── Organizations/ # Organization notes
 │   └── ...
-├── journals/        # Daily journal entries
+├── journals/        # Daily journal entries (existing org-roam data)
 ├── logseq/          # Logseq configuration
 │   ├── config.edn   # Main config
 │   └── custom.css   # Custom styling
@@ -265,17 +245,16 @@ chmod +x ~/logseq-workspace/backup.sh
 
 ### Migration Steps
 - [ ] Remove Obsidian references
-- [ ] Create clean Logseq workspace
-- [ ] Migrate data from obsidian-vault
-- [ ] Update Emacs configuration
-- [ ] Set up cloud sync
-- [ ] Initialize git repository
-- [ ] Test Emacs integration
+- [ ] Configure Logseq to use existing org-roam data directory
+- [ ] Update Emacs configuration (remove org-roam dependencies)
+- [ ] Verify cloud sync setup
+- [ ] Initialize git repository in existing directory
+- [ ] Test Logseq integration
 - [ ] Test mobile sync
 
 ### Post-Migration
-- [ ] Verify all notes are accessible
-- [ ] Test org-roam functionality
+- [ ] Verify all notes are accessible in Logseq
+- [ ] Test basic org-mode functionality in Emacs
 - [ ] Test mobile app sync
 - [ ] Update any scripts or automation
 - [ ] Document new setup
@@ -289,11 +268,10 @@ chmod +x ~/logseq-workspace/backup.sh
 - Grant full disk access to terminal/emacs
 - Consider using local directory with manual sync
 
-#### 2. Org-Roam Database Issues
-```elisp
-;; Reset org-roam database if needed
-(org-roam-db-clear-all)
-(org-roam-db-sync)
+#### 2. Logseq Database Issues
+```bash
+# Reset Logseq database if needed
+# In Logseq app: Settings → Advanced → Clear cache and restart
 ```
 
 #### 3. Logseq Sync Issues
@@ -304,28 +282,26 @@ chmod +x ~/logseq-workspace/backup.sh
 ### Performance Optimization
 
 #### 1. Large File Handling
-```elisp
-;; Limit org-roam to specific file patterns
-(setq org-roam-file-extensions '("org"))
-(setq org-roam-file-exclude-regexp "\\(?:^\\|\/\)\\(?:\\..*\\|.*~\\|.*#.*#\\)$")
+```bash
+# Logseq handles large files automatically
+# If performance issues occur, consider splitting large files
 ```
 
-#### 2. Database Optimization
-```elisp
-;; Periodic database cleanup
-(defun my/org-roam-cleanup ()
-  (interactive)
-  (org-roam-db-clear-all)
-  (org-roam-db-sync))
+#### 2. Logseq Performance Optimization
+```bash
+# Clear Logseq cache periodically
+# In Logseq app: Settings → Advanced → Clear cache
 ```
 
 ## Conclusion
 
 This migration plan provides a clean, simplified setup that:
 - Removes all Obsidian complexity
+- Abandons org-roam due to reliability issues
+- Uses existing org-roam data directly with Logseq (no copying or moving)
 - Establishes a single source of truth for notes
-- Enables seamless Emacs and mobile integration
+- Enables seamless Logseq and mobile integration
 - Provides proper version control and backup
 - Follows best practices for maintainability
 
-The key is to start with a clean slate and build up the functionality you actually need, rather than maintaining compatibility with tools you no longer use.
+The key is to use your existing data in place without creating duplicates or dependencies on broken tools.
