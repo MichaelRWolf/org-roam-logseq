@@ -13,6 +13,8 @@ This document outlines the migration from a complex org-mode/org-roam/obsidian s
 - **Permission issues**: iCloud directories with restricted access
 - **Git version control**: Multiple repos and submodules creating confusion
 
+**Note**: The Portable_Profile submodule and its `michael` symlink to home directory are ignored in this migration plan as they are part of a separate system.
+
 ### Current Directory Structure
 ```
 org-roam-logseq/
@@ -45,9 +47,6 @@ rm -rf migrate-org-to-obsidian/portable-profile/michael/obsidian-vault/
 
 #### 1.3 Clean Up Empty Directories
 ```bash
-# Remove empty org-roam-logseq directory
-rm -rf migrate-org-to-obsidian/portable-profile/michael/org-roam-logseq/
-
 # Remove unused logseq config in workspace root
 rm -rf logseq/
 ```
@@ -66,8 +65,11 @@ cp migrate-org-to-obsidian/portable-profile/michael/obsidian-vault/logseq/config
 #### 2.2 Migrate Data
 ```bash
 # Move your working files from obsidian-vault (if still exists)
-cp -r migrate-org-to-obsidian/portable-profile/michael/obsidian-vault/pages/* ~/logseq-workspace/pages/
-cp -r migrate-org-to-obsidian/portable-profile/michael/obsidian-vault/journals/* ~/logseq-workspace/journals/
+# Note: If obsidian-vault was already removed, skip this step
+if [ -d "migrate-org-to-obsidian/portable-profile/michael/obsidian-vault/" ]; then
+  cp -r migrate-org-to-obsidian/portable-profile/michael/obsidian-vault/pages/* ~/logseq-workspace/pages/
+  cp -r migrate-org-to-obsidian/portable-profile/michael/obsidian-vault/journals/* ~/logseq-workspace/journals/
+fi
 ```
 
 #### 2.3 Update Emacs Configuration
@@ -80,15 +82,14 @@ Update `emacs_mrw_org_stuff.el`:
 )
 ```
 
-#### 2.4 Remove Problematic Symlinks
+#### 2.4 Remove Obsidian Migration Directory (Optional)
 ```bash
-# Remove the confusing symlink
-rm migrate-org-to-obsidian/portable-profile/michael
+# Option A: Remove the entire migration directory if no longer needed
+rm -rf migrate-org-to-obsidian/
 
-# Remove other unnecessary symlinks in TODO_bin
-rm migrate-org-to-obsidian/portable-profile/TODO_bin/bright
-rm migrate-org-to-obsidian/portable-profile/TODO_bin/chatGPT-CLI
-# ... remove other external tool symlinks as needed
+# Option B: Keep the directory but remove only Obsidian-specific files
+rm -rf migrate-org-to-obsidian/bin/org_roam_to_obsidian.sh*
+rm -rf migrate-org-to-obsidian/elisp/org_roam_to_obsidian.el
 ```
 
 ### Phase 3: Cloud Sync Setup
