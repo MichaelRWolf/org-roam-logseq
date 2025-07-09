@@ -136,24 +136,7 @@ chmod +x ~/org-roam-logseq-nodes-MichaelRWolf/backup.sh
 
 ### Emacs Configuration Best Practices
 
-#### 1. Use-Package Organization Example
-```elisp
-;; Example: How to organize use-package forms properly
-(use-package example-package
-  :ensure t
-  :custom
-  ;; All customizations in one place
-  (example-setting "value")
-  :config
-  ;; All configuration in one place
-  (example-initialize)
-  :bind
-  ;; All keybindings in one place
-  (:map example-mode-map
-        ("C-c e" . example-command)))
-```
-
-#### 2. Complete Org-Mode Configuration
+#### Complete Org-Mode Configuration
 ```elisp
 ;; Complete org-mode configuration for Logseq integration
 (use-package org
