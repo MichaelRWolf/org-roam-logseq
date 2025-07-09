@@ -28,18 +28,15 @@ if [ ! -f "$EARLY_INIT_SCRIPT" ]; then
     exit 1
 fi
 
-# Ensure clean environment
-unset EMACSLOADPATH
-unset EMACSDATA
-unset EMACSDOC
-unset EMACSLOADPATH
-unset EMACSPATH
-unset EMACSDATA
-unset EMACSDOC
-unset EMACSPATH
-unset EMACSDATA
-unset EMACSDOC
-unset EMACSPATH
+# Find the latest Org version in ELPA
+ORG_ELPA_DIR=$(find ~/.emacs.d/elpa -maxdepth 1 -type d -name "org-*" | sort -r | head -n1)
+if [ -z "$ORG_ELPA_DIR" ]; then
+    echo "Error: Could not find Org in ELPA"
+    exit 1
+fi
+
+# Set EMACSLOADPATH to ensure ELPA Org is loaded first
+export EMACSLOADPATH="$ORG_ELPA_DIR/lisp"
 
 if [ "$#" -lt 1 ]; then
     echo "Usage: $0 [--export-all SRCDIR DESTDIR] ORGFILE... DESTDIR"
