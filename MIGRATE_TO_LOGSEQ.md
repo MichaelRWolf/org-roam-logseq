@@ -136,44 +136,49 @@ chmod +x ~/org-roam-logseq-nodes-MichaelRWolf/backup.sh
 
 ### Emacs Configuration Best Practices
 
-#### 1. Use-Package Organization
+#### 1. Use-Package Organization Example
 ```elisp
-;; Group related packages together
-(use-package org
+;; Example: How to organize use-package forms properly
+(use-package example-package
   :ensure t
   :custom
   ;; All customizations in one place
-  (org-babel-load-languages '((emacs-lisp . t) (shell . t) (python . t)))
-  (org-babel-python-command "python3")
+  (example-setting "value")
   :config
   ;; All configuration in one place
-  (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
+  (example-initialize)
   :bind
   ;; All keybindings in one place
-  (:map org-mode-map
-        ("M-S-<right>" . org-table-insert-column)
-        ("M-S-<left>" . org-table-delete-column)))
+  (:map example-mode-map
+        ("C-c e" . example-command)))
 ```
 
-#### 2. Org-Mode Configuration (No org-roam)
+#### 2. Complete Org-Mode Configuration
 ```elisp
-;; Basic org-mode configuration without org-roam dependencies
+;; Complete org-mode configuration for Logseq integration
 (use-package org
   :ensure t
   :custom
+  ;; Directory and file settings
   (org-directory "~/org-roam-logseq-nodes-MichaelRWolf")
   (org-agenda-files (list "~/org-roam-logseq-nodes-MichaelRWolf/pages"
                           "~/org-roam-logseq-nodes-MichaelRWolf/journals"))
+  ;; Babel settings
+  (org-babel-load-languages '((emacs-lisp . t) (shell . t) (python . t)))
+  (org-babel-python-command "python3")
+  :config
+  ;; Initialize babel languages
+  (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
   :bind
+  ;; Keybindings
   (("C-c a" . org-agenda)
-   ("C-c c" . org-capture)))
+   ("C-c c" . org-capture)
+   (:map org-mode-map
+         ("M-S-<right>" . org-table-insert-column)
+         ("M-S-<left>" . org-table-delete-column))))
 ```
 
-#### 3. Logseq Integration (Direct)
-```elisp
-;; Direct integration with Logseq workspace
-(setq logseq-workspace "~/org-roam-logseq-nodes-MichaelRWolf")
-```
+
 
 ### File Organization Best Practices
 
