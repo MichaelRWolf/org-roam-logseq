@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.el": "lisp"
+    },
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": true,
+    "[lisp]": {
+        "editor.formatOnSave": true
+    }
+}
